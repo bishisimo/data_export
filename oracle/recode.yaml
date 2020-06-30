@@ -1,0 +1,12 @@
+T2_HU_traffic_DATA:
+  deadline_time: ''
+  last_execute_time: '1970-01-01 00:00:00'
+T2_HU_ACTION_DATA:
+  deadline_time: ''
+  last_execute_time: '1970-01-01 00:00:00'
+T2_DIAGNOSIS_NEW:
+  deadline_time: ''
+  last_execute_time: '1970-01-01 00:00:00'
+T_APP_ACCESS_DAY:
+  deadline_time: ''
+  last_execute_time: '1970-01-01 00:00:00'

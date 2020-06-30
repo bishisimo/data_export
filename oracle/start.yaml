@@ -1,0 +1,4 @@
+apps:
+  - script: ". /root/.bashrc&&. /root/anaconda3/bin/activate db&&python -V&&python oracle.py"
+    name: "export_oracle"
+    log_date_format: "YYYY-MM-DD HH:mm:ss Z"
