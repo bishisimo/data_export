@@ -10,7 +10,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from loguru import logger
 import cx_Oracle
 import pandas
-logger.remove()
+# logger.remove()
 logger.add("./logger/error/error.log",rotation="1 year", enqueue=True, level='ERROR', delay=True)
 logger.add("./logger/info/info.log", rotation="1 month", enqueue=True, level='INFO', delay=True)
 
@@ -21,7 +21,6 @@ class OracleJob:
         self.db = None  # 数据库
         self.cursor = None  # 数据库游标
         self.deadline_time = ''  # 截止时间
-        self.log_file_path = ''  # 日志位置
         self.default_record={
             'last_execute_time':'1970-01-01 00:00:00',
             'deadline_time':arrow.now().format("YYYY-MM-DD HH:mm:ss")
@@ -48,6 +47,7 @@ class OracleJob:
                 if record is not None:
                     self.record=record
 
+
     def export(self):
         """
         导出数据的执行部分
@@ -62,14 +62,14 @@ class OracleJob:
                 try:
                     if table_name in self.record:
                         record=self.record[table_name]
-                        if 'last_execute_time' not in record:
+                        if 'last_execute_time' not in record or record['last_execute_time']=='':
                             record['last_execute_time']=self.default_record['last_execute_time']
-                        if 'deadline_time' not in record:
+                        if 'deadline_time' not in record or record['deadline_time']=='':
                             record['deadline_time']=self.default_record['deadline_time']
                     else:
                         record=self.default_record
-                    sql_context = f'select * from {table_name} where {table_dict["on"]}>=TO_DATE({record["last_execute_time"]},"YYYY-MM-DD HH24:mi:ss") and {table_dict["on"]}<TO_DATE({self.deadline_time},"YYYY-MM-DD HH24:mi:ss")'
-                    if table_dict['where'] is not None:
+                    sql_context = f"select * from {table_name} where {table_dict['field']}>=TO_DATE('{record['last_execute_time']}','YYYY-MM-DD HH24:mi:ss') and {table_dict['field']}<TO_DATE('{record['deadline_time']}','YYYY-MM-DD HH24:mi:ss')"
+                    if 'where' in table_dict and table_dict['where'] !='':
                         sql_context+=f'and {table_dict["where"]}'
                     self.cursor.execute(sql_context)
                     rows = self.cursor.fetchall()
@@ -84,7 +84,7 @@ class OracleJob:
                 except Exception as e:
                     logger.error(
                         f'table={table_name},deadline_time={self.deadline_time},e={e}')
-            with open('./recode.yaml', 'w') as f:
+            with open('./record.yaml', 'w') as f:
                 yaml.safe_dump(self.record, f)
         except Exception as e:
             logger.error(

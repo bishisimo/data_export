@@ -150,9 +150,9 @@ class CassandraJob:
                 except Exception as e:
                     self.record_err_day(i, select_vins[i], e)
             start_i = end_i
-            if len(df) >= 1200000 or end_i == self.all_vins_len:
+            df_len = len(df)
+            if df_len >= 1200000 or end_i == self.all_vins_len:
                 epoch += 1
-                df_len = len(df)
                 total_num += df_len
                 df.to_parquet(f"{self.data_dir}/{epoch}.snappy.parquet", index=False)
                 logger.info(f'completed:{self.t_year}_{self.t_month}_{self.t_day}{epoch},len={df_len}')
@@ -241,7 +241,7 @@ class CassandraJob:
         self.export_by_day()
         self._lock = False
 
-    def start_timer(self, is_async=False, add_fun=None):
+    def start_timer(self, is_async=False):
         """
         开启定时任务
         :param is_async: 是否异步定时
@@ -255,13 +255,12 @@ class CassandraJob:
         next_run_time = self.now.floor('day').shift(days=1)
         scheduler.add_job(self.primary_run, 'interval', days=1, next_run_time=next_run_time.naive)
         scheduler.start()
-        if add_fun is not None:
-            add_fun()
-        if is_async:
-            while True:
-                time.sleep(60)
+
 
 
 if __name__ == '__main__':
     c = CassandraJob()
-    c.start_timer(True, c.history_export)
+    c.start_timer(True)
+    c.history_export()
+    while True:
+        time.sleep(60)
