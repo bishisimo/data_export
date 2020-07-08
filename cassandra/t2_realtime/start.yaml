@@ -1,4 +1,4 @@
 apps:
-  - script: ". /root/.bashrc&&. /root/anaconda3/bin/activate db&&python -V&&python t2_realtime.py"
+  - script: ". /root/.bashrc&&. /root/anaconda3/bin/activate db&&python t2_realtime.py"
     name: "export_t2_realtime"
     log_date_format: "YYYY-MM-DD HH:mm:ss Z"
